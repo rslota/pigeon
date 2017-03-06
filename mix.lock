@@ -11,7 +11,6 @@
   "httpoison": {:hex, :httpoison, "0.11.1", "d06c571274c0e77b6cc50e548db3fd7779f611fbed6681fd60a331f66c143a0b", [:mix], [{:hackney, "~> 1.7.0", [hex: :hackney, optional: false]}]},
   "idna": {:hex, :idna, "4.0.0", "10aaa9f79d0b12cf0def53038547855b91144f1bfcc0ec73494f38bb7b9c4961", [:rebar3], []},
   "jsx": {:hex, :jsx, "2.8.2", "7acc7d785b5abe8a6e9adbde926a24e481f29956dd8b4df49e3e4e7bcc92a018", [:mix, :rebar3], []},
-  "kadabra": {:git, "https://github.com/rslota/kadabra.git", "9f6e41076f5ad93866a7d4486261c830642a8f63", [tag: "9f6e4107"]},
   "lager": {:git, "https://github.com/basho/lager.git", "81eaef0ce98fdbf64ab95665e3bc2ec4b24c7dac", [tag: "3.2.4"]},
   "metrics": {:hex, :metrics, "1.0.1", "25f094dea2cda98213cecc3aeff09e940299d950904393b2a29d191c346a8486", [:rebar3], []},
   "mimerl": {:hex, :mimerl, "1.0.2", "993f9b0e084083405ed8252b99460c4f0563e41729ab42d9074fd5e52439be88", [:rebar3], []},
