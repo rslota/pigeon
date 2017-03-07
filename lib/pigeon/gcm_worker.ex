@@ -2,7 +2,7 @@ defmodule Pigeon.GCMWorker do
   @moduledoc """
     Handles all FCM request and response parsing over an HTTP2 connection.
   """
-  use Pigeon.GenericH2Worker
+  use Pigeon.GenericH2Worker, ping_interval: 60_000
   alias Pigeon.GCM.NotificationResponse
   require Logger
 

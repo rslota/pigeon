@@ -2,7 +2,7 @@ defmodule Pigeon.APNSWorker do
   @moduledoc """
     Handles all APNS request and response parsing over an HTTP2 connection.
   """
-  use Pigeon.GenericH2Worker
+  use Pigeon.GenericH2Worker, ping_interval: 600_000
   require Logger
 
   def host(config) do
