@@ -88,46 +88,42 @@ defmodule Pigeon.GenericH2Worker do
 
         def handle_cast(:stop, state), do: { :noreply, state }
 
-        def handle_cast(:ping, state) do
-          case state do
-            %{socket: nil} ->
-              :ok
-            %{socket: conn} ->
-              Pigeon.H2.ping(conn)
-          end
-          schedule_ping(self())
-          {:noreply, state}
-        end
-
         def handle_cast({:push, _, notification}, state) do
-          send_push(state, notification, nil)
+          send_push(state, notification, nil, [])
         end
 
         def handle_cast({:push, _, notification, on_response}, state) do
-          send_push(state, notification, on_response)
+          send_push(state, notification, on_response, [])
+        end
+
+        def handle_cast({:push, _, notification, on_response, opts}, state) do
+          send_push(state, notification, on_response, opts)
         end
 
         def handle_cast(_msg, state) do
           {:noreply, state}
         end
 
-        def send_push(%{socket: nil, config: config}, notification, on_reponse) do
+        def send_push(%{socket: nil, config: config}, notification,
+                        on_reponse, opts) do
           Logger.info "Reconnecting to push service provider before request"
           case initialize_worker(config) do
-            {:ok, newstate} -> send_push(newstate, notification, on_reponse)
+            {:ok, newstate} -> send_push(newstate, notification, on_reponse, opts)
             error -> error
           end
         end
 
-        def send_push(state, notification, on_response) do
+        def send_push(state, notification, on_response, _opts) do
           %{socket: socket, queue: queue, config: config} = state
-          json = Pigeon.Notification.json_payload(notification.payload)
+          payload = encode_notification(notification)
 
           headers = req_headers(config, notification)
           uri = host(config)
           path = req_path(notification)
-          case Pigeon.H2.post(socket, uri, path, headers, json) do
+          IO.puts inspect notification
+          case Pigeon.H2.post(socket, uri, path, headers, payload) do
             {:ok, stream_id} ->
+              IO.puts inspect stream_id
               new_q = Map.put(queue, "#{stream_id}", {notification, on_response})
               {:noreply, %{state | queue: new_q }}
             {:error, reason} ->
@@ -138,6 +134,17 @@ defmodule Pigeon.GenericH2Worker do
 
         defp maybe_respond(response, on_response) do
           unless on_response == nil, do: on_response.(response)
+        end
+
+        def handle_info(:ping, state) do
+          case state do
+            %{socket: nil} ->
+              :ok
+            %{socket: conn} ->
+              Pigeon.H2.ping(conn)
+          end
+          schedule_ping(self())
+          {:noreply, state}
         end
 
         def handle_info({:END_STREAM, stream_id}, %{socket: socket, queue: queue} = state) do
@@ -165,7 +172,7 @@ defmodule Pigeon.GenericH2Worker do
           {:noreply, %{state | queue: new_queue}}
         end
 
-        def handle_info({:PING, _from}, state) do
+        def handle_info({:PONG, _from}, state) do
           Logger.debug ~s"Received ping from the push service"
           {:noreply, state}
         end
@@ -193,7 +200,7 @@ defmodule Pigeon.GenericH2Worker do
         end
 
         defp log_error(code, reason, notification) do
-          Logger.error("Error code #{{code}} (#{reason}): #{error_msg(code, reason)}")
+          Logger.error("Error code #{code} (#{inspect reason}): #{error_msg(code, reason)}")
         end
 
       end

@@ -19,6 +19,10 @@ defmodule Pigeon.APNSWorker do
     end
   end
 
+  def encode_notification(notification) do
+    Pigeon.Notification.json_payload(notification.payload)
+  end
+
   def socket_options(config) do
     cert = get_opt(config, :cert, :certfile)
     key = get_opt(config, :key, :keyfile)
@@ -43,7 +47,8 @@ defmodule Pigeon.APNSWorker do
   end
 
   def req_headers(_config, notification) do
-    []
+    [{"content-type", "application/json"},
+     {"accept", "application/json"}]
     |> put_apns_id(notification)
     |> put_apns_topic(notification)
   end
