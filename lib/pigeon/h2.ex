@@ -1,4 +1,5 @@
 defmodule Pigeon.H2 do
+  require Logger
   def open(uri, port, opts \\ []) do
     try do
       :h2_client.start_link(:https, to_charlist(uri), port, opts)
@@ -25,7 +26,11 @@ defmodule Pigeon.H2 do
   end
 
   def receive(conn, stream_id) do
-    case :h2_connection.get_response(conn, stream_id) do
+    r = :h2_connection.get_response(conn, stream_id)
+    Logger.error inspect r
+    case r do
+      {:ok, {headers, :undefined}} ->
+        {:error, :invalid_body}
       {:ok, {headers, body}} ->
         {:ok, {headers, Enum.join(body)}}
       {:error, reason} ->
