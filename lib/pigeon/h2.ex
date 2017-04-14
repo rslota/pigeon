@@ -26,11 +26,17 @@ defmodule Pigeon.H2 do
 
   def receive(conn, stream_id) do
     case :h2_connection.get_response(conn, stream_id) do
+      {:ok, {headers, :undefined}} ->
+        {:ok, {headers, ""}}
       {:ok, {headers, body}} ->
         {:ok, {headers, Enum.join(body)}}
       {:error, reason} ->
         {:error, reason}
     end
+  end
+
+  def ping(conn) do
+    :h2_client.send_ping(conn)
   end
 
   defp make_headers(method, uri, path, headers, body) do
