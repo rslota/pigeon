@@ -46,11 +46,11 @@ defmodule Pigeon.APNSWorker do
     end
   end
 
-  def req_headers(_config, notification) do
+  def req_headers(config, notification) do
     [{"content-type", "application/json"},
      {"accept", "application/json"}]
     |> put_apns_id(notification)
-    |> put_apns_topic(notification)
+    |> put_apns_topic(notification, config)
   end
 
   defp put_apns_id(headers, notification) do
@@ -60,10 +60,14 @@ defmodule Pigeon.APNSWorker do
     end
   end
 
-  defp put_apns_topic(headers, notification) do
-    case notification.topic do
-      nil   -> headers
-      topic -> headers ++ [{"apns-topic", topic}]
+  defp put_apns_topic(headers, notification, config) do
+    cond do
+      notification.topic ->
+        headers ++ [{"apns-topic", notification.topic}]
+      config[:default_topic] ->
+        headers ++ [{"apns-topic", config[:default_topic]}]
+      true ->
+        headers
     end
   end
 
