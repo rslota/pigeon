@@ -4,6 +4,17 @@
 # Pigeon
 HTTP2-compliant wrapper for sending iOS and Android push notifications.
 
+## Fork information
+This repo is an fork of the original project. It's mean to be used as a heart of [MongoosePush](https://github.com/esl/MongoosePush) platform. Initially, this project was lacking some features that needed to be present in order to provide complete push notifications service for XMPP server. Also, there were some performance issues, crashes and connections "lockups" under heavy loads ([MongoosePush](https://github.com/esl/MongoosePush) is load tested). Due to those issues I've heavely modified the code by introducing the following changes:
+
+* configuration may be provided externally for convinience (e.g. dynamically by wrapping application)
+* you can setup multiple pools for one push notifications provider (e.g. you can have separate pool for `:dev` and `:prod` APNS enviroments)
+* timeouts are configurable 
+* HTTP/2 client has been changed to `chatterbox` which was almost bug-free in terms of behaving good under heavy load
+* APNS and FCM are now implemented using generic HTTP/2 worker, which decreases code complexity and maintnance cost
+* support for setting default APNS topic 
+* some other minor bugfiexes
+
 ## Installation
 **Note: Pigeon's API will likely change until v1.0**
 
@@ -11,7 +22,7 @@ Add pigeon as a `mix.exs` dependency:
   ```elixir
   def deps do
     [
-      {:pigeon, "~> 0.10.0"}
+      {:pigeon, github: "https://github.com/rslota/pigeon"}
     ]
   end
   ```
