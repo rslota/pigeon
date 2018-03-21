@@ -51,6 +51,7 @@ defmodule Pigeon.APNSWorker do
      {"accept", "application/json"}]
     |> put_apns_id(notification)
     |> put_apns_topic(notification, config)
+    |> put_apns_priority(notification)
   end
 
   defp put_apns_id(headers, notification) do
@@ -66,6 +67,15 @@ defmodule Pigeon.APNSWorker do
         headers ++ [{"apns-topic", notification.topic}]
       config[:default_topic] ->
         headers ++ [{"apns-topic", config[:default_topic]}]
+      true ->
+        headers
+    end
+  end
+
+  defp put_apns_priority(headers, notification) do
+    cond do
+      notification.priority ->
+        headers ++ [{"apns-priority", notification.priority}]
       true ->
         headers
     end

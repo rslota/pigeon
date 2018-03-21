@@ -19,7 +19,7 @@ defmodule Pigeon.APNS.Notification do
   @moduledoc """
     Defines APNS notification struct and convenience constructor functions.
   """
-  defstruct device_token: nil, payload: %{"aps" => %{}}, expiration: nil, topic: nil, id: nil
+  defstruct device_token: nil, payload: %{"aps" => %{}}, expiration: nil, topic: nil, id: nil, priority: nil
 
   def new(msg, token, topic \\ nil, data \\ nil) do
     %Pigeon.APNS.Notification{
@@ -49,6 +49,8 @@ defmodule Pigeon.APNS.Notification do
   def put_category(notification, category), do: update_payload(notification, "category", category)
 
   def put_mutable_content(notification), do: update_payload(notification, "mutable-content", 1)
+
+  def put_priority(notification, priority), do: %{notification | priority: priority}
 
   defp update_payload(notification, key, value) do
     new_aps =
@@ -81,6 +83,9 @@ defmodule Pigeon.GCM.Notification do
   def put_data(n, data), do: update_payload(n, "data", data)
 
   def put_notification(n, notification), do: update_payload(n, "notification", notification)
+
+  def put_priority(n, nil),       do: n
+  def put_priority(n, priority),  do: update_payload(n, "priority", priority)
 
   defp update_payload(notification, _key, value) when value == %{}, do: notification
   defp update_payload(notification, key, value) do
