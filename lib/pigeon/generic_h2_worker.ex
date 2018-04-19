@@ -105,10 +105,14 @@ defmodule Pigeon.GenericH2Worker do
         end
 
         def send_push(%{socket: nil, config: config}, notification,
-                        on_reponse, opts) do
+                        on_response, opts) do
           Logger.info "Reconnecting to push service provider before request"
           case initialize_worker(config) do
-            {:ok, newstate} -> send_push(newstate, notification, on_reponse, opts)
+            {:ok, %{socket: nil} = new_state} ->
+              maybe_respond({:error, :unable_to_connect, notification}, on_response)
+              {:noreply, new_state}
+            {:ok, newstate} ->
+              send_push(newstate, notification, on_response, opts)
             error -> error
           end
         end
