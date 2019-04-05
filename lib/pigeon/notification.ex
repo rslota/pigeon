@@ -87,6 +87,9 @@ defmodule Pigeon.GCM.Notification do
   def put_priority(n, nil),       do: n
   def put_priority(n, priority),  do: update_payload(n, "priority", priority)
 
+  def put_ttl(n, nil), do: n
+  def put_ttl(n, ttl), do: update_payload(n, "time_to_live", ttl)
+
   defp update_payload(notification, _key, value) when value == %{}, do: notification
   defp update_payload(notification, key, value) do
     payload =
