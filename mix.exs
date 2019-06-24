@@ -30,7 +30,7 @@ defmodule Pigeon.Mixfile do
 
   defp deps do
     [{:poison, "~> 2.0 or ~> 3.0"},
-    {:httpoison, "~> 0.7"},
+    {:httpoison, "~> 1.4"},
     {:chatterbox, github: "rslota/chatterbox", tag: "20f0096"},
     {:poolboy, "~> 1.5"},
     {:dogma, "~> 0.1", only: :dev},

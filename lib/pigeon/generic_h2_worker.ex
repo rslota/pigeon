@@ -21,6 +21,8 @@ defmodule Pigeon.GenericH2Worker do
         use GenServer
         require Logger
 
+        alias unquote(opts[:http_client]), as: HTTP
+
         def start_link(name, config) do
           start_link(Keyword.merge(config, [name: name]))
         end
@@ -78,7 +80,7 @@ defmodule Pigeon.GenericH2Worker do
         end
 
         defp do_connect_socket(config, uri, options, tries) do
-          case Pigeon.H2.open(uri, port(config), options) do
+          case HTTP.open(uri, port(config), options) do
             {:ok, socket} -> {:ok, socket}
             {:error, reason} ->
               Logger.error(inspect(reason))
@@ -123,8 +125,8 @@ defmodule Pigeon.GenericH2Worker do
 
           headers = req_headers(config, notification)
           uri = host(config)
-          path = req_path(notification)
-          case Pigeon.H2.post(socket, uri, path, headers, payload) do
+          path = req_path(config, notification)
+          case HTTP.post(socket, uri, path, headers, payload) do
             {:ok, stream_id} ->
               new_q = Map.put(queue, "#{stream_id}", {notification, on_response})
               {:noreply, %{state | queue: new_q }}
@@ -143,14 +145,14 @@ defmodule Pigeon.GenericH2Worker do
             %{socket: nil} ->
               :ok
             %{socket: conn} ->
-              Pigeon.H2.ping(conn)
+              HTTP.ping(conn)
           end
           schedule_ping(self())
           {:noreply, state}
         end
 
         def handle_info({:END_STREAM, stream_id}, %{socket: socket, queue: queue} = state) do
-          {:ok, {headers, body}} = Pigeon.H2.receive(socket, stream_id)
+          {:ok, {headers, body}} = HTTP.receive(socket, stream_id)
 
           {notification, on_response} = queue["#{stream_id}"]
           case get_status(headers) do

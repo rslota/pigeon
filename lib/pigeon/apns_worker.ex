@@ -2,7 +2,7 @@ defmodule Pigeon.APNSWorker do
   @moduledoc """
     Handles all APNS request and response parsing over an HTTP2 connection.
   """
-  use Pigeon.GenericH2Worker, ping_interval: 600_000
+  use Pigeon.GenericH2Worker, ping_interval: 600_000, http_client: Pigeon.H2
   require Logger
 
   def host(config) do
@@ -81,7 +81,7 @@ defmodule Pigeon.APNSWorker do
     end
   end
 
-  def req_path(notification) do
+  def req_path(_config, notification) do
     "/3/device/#{notification.device_token}"
   end
 

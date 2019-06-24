@@ -2,7 +2,7 @@ defmodule Pigeon.GCMWorker do
   @moduledoc """
     Handles all FCM request and response parsing over an HTTP2 connection.
   """
-  use Pigeon.GenericH2Worker, ping_interval: 60_000
+  use Pigeon.GenericH2Worker, ping_interval: 60_000, http_client: Pigeon.H2
   alias Pigeon.GCM.NotificationResponse
   require Logger
 
@@ -30,7 +30,7 @@ defmodule Pigeon.GCMWorker do
      {"accept", "application/json"}]
   end
 
-  def req_path(_notification) do
+  def req_path(_config, _notification) do
     "/fcm/send"
   end
 
