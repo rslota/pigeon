@@ -90,6 +90,9 @@ defmodule Pigeon.GCM.Notification do
   def put_ttl(n, nil), do: n
   def put_ttl(n, ttl), do: update_payload(n, "time_to_live", ttl)
 
+  def put_mutable_content(n, nil), do: n
+  def put_mutable_content(n, mutable_content), do: update_payload(n, "mutable_content", mutable_content)
+
   defp update_payload(notification, _key, value) when value == %{}, do: notification
   defp update_payload(notification, key, value) do
     payload =
